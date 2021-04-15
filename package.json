@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:conflux.getBodyTest"
+    "onCommand:conflux.initialize"
   ],
   "main": "./dist/extension.js",
   "contributes": {
