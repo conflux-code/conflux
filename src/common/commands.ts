@@ -79,14 +79,20 @@ export async function getBody(context: vscode.ExtensionContext) {
       'cql=(text ~ "dev staging deprecation")'
     );
     const id = response["results"][0]["content"]["id"];
-    const response2 = await confluence.getCustomContentById({id, expanders: ["body.styled_view"]});
+    const response2 = await confluence.getCustomContentById({
+      id,
+      expanders: ["body.styled_view"],
+    }); //body.storage
 
     const markdown = NodeHtmlMarkdown.translate(
       response2["body"]["styled_view"]["value"],
       {},
       undefined
     );
-    writeFileSync("test.html", unescape(response2["body"]["styled_view"]["value"]));
+    writeFileSync(
+      "test.html",
+      unescape(response2["body"]["styled_view"]["value"])
+    ); // storage
     vscode.window.showInformationMessage("check file bro!");
   } catch (error) {
     console.log(error);

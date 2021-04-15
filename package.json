@@ -14,7 +14,6 @@
     "onCommand:conflux.search",
     "onCommand:conflux.refresh",
     "onCommand:conflux.document",
-    "onOpenExternalUri:conflux.document",
     "onView:conflux-sidebar",
     "onCommand:conflux.initialize"
   ],
@@ -34,6 +33,11 @@
       {
         "command": "conflux.refresh",
         "title": "Refresh WebView with Developer Tools",
+        "category": "Conflux"
+      },
+      {
+        "command": "conflux.document",
+        "title": "Conflux Document Test",
         "category": "Conflux"
       },
       {
