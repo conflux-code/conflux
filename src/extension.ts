@@ -3,19 +3,11 @@ import Confluence from "@webda/confluence-api";
 import { SearchPanel } from "./SearchPanel";
 import { SidebarProvider } from "./SidebarProvider";
 import { DocumentViewProvider } from "./DocumentViewProvider";
-import { getBody, initialize } from "./common/commands";
+import { initialize } from "./common/commands";
+import { getConfluenceObject } from "./common/confluence-util";
 
 export function activate(context: vscode.ExtensionContext) {
-  let config = {
-    username: "madhurjya.r",
-    password: "password",
-    baseUrl: "https://confluence.endurance.com",
-    version: 6,
-  };
-
-  const confluence = new Confluence(config);
   const sidebarProvider = new SidebarProvider(context.extensionUri);
-
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.helloWorld", () => {
       vscode.window.showInformationMessage("Hello World from Conflux!");
@@ -25,6 +17,17 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.search", () => {
       SearchPanel.createOrShow(context.extensionUri);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.doSearch", async (text) => {
+      vscode.window.showInformationMessage(text);
+      let confluence = await getConfluenceObject(context);
+      const response = await confluence.search(
+        `cql=(text ~ "${text}" AND type="page")`
+      );
+      SearchPanel.currentPanel?._panel.webview.postMessage({ response });
     })
   );
 
@@ -60,12 +63,6 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.initialize", () =>
       initialize(context)
-    )
-  );
-
-  context.subscriptions.push(
-    vscode.commands.registerCommand("conflux.getBodyTest", () =>
-      getBody(context)
     )
   );
 }
