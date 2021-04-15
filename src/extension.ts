@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { initialize } from "./common/commands";
+import { getBody, initialize } from "./common/commands";
 
 export function activate(context: vscode.ExtensionContext) {
   console.log('Congratulations, your extension "conflux" is now active!');
@@ -7,6 +7,12 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.initialize", () =>
       initialize(context)
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.getBodyTest", () =>
+      getBody(context)
     )
   );
 }
