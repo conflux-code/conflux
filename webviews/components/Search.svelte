@@ -1,9 +1,9 @@
 <script lang="ts">
   let text: string;
-  let title: string = "";
   let excerpt: string = "";
-  let value: string = "";
   let timer: any;
+  let results: any[] = [];
+  let baseUrl = "";
 
   const openSearchPanel = () => {
     if (text.length <= 2) {
@@ -28,9 +28,11 @@
 
   window.addEventListener("message", (event) => {
     const message = event.data; // The JSON data our extension sent
-    console.log(message);
-    title = message["response"]["results"][0]["title"];
     excerpt = message["response"]["results"][0]["excerpt"];
+    results = Object.values(message.response.results);
+    baseUrl = message.response._links.base;
+    console.log(baseUrl);
+    console.log(results);
   });
 </script>
 
@@ -38,24 +40,42 @@
 <div class="search-input">
   <input bind:value={text} on:keyup={debounce} />
 </div>
-<div class="results">
-  Search results for {text}...
-
-  <h2>
-    {@html title
-      .replaceAll("@@@hl@@@", "<strong>")
-      .replaceAll("@@@endhl@@@", "</strong>")}
-  </h2>
-  <h4>
-    {@html excerpt
-      .replaceAll("@@@hl@@@", "<strong>")
-      .replaceAll("@@@endhl@@@", "</strong>")}
-  </h4>
+Search results for {text}...
+<div class="multi-result">
+  {#each results as result}
+    <div class="result">
+      <div class="title-line">
+        <a href="http://localhost">
+          <h3 class="title">
+            {@html result.title
+              .replaceAll("@@@hl@@@", "<em>")
+              .replaceAll("@@@endhl@@@", "</em>")}
+          </h3>
+        </a>
+      </div>
+      <div class="option-line">
+        [ <a href="{baseUrl}{result.url}">Open in browser</a> ] [Cached &#x2713;
+        &#x2717;]
+      </div>
+      {@html result.excerpt
+        .replaceAll("@@@hl@@@", "<strong>")
+        .replaceAll("@@@endhl@@@", "</strong>")}
+    </div>
+  {/each}
 </div>
 
 <style>
-  div {
-    margin-top: 100pt;
-    margin-bottom: 100pt;
+  div.result {
+    padding: 5pt;
+  }
+  .title {
+    font-weight: bold;
+  }
+  .title-line {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .option-line {
+    font-size: smaller;
   }
 </style>

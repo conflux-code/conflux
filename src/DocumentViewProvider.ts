@@ -38,6 +38,7 @@ export class DocumentViewProvider {
         localResourceRoots: [
           vscode.Uri.joinPath(extensionUri, "media"),
           vscode.Uri.joinPath(extensionUri, "out/compiled"),
+          vscode.Uri.joinPath(extensionUri),
         ],
       }
     );
@@ -124,6 +125,10 @@ export class DocumentViewProvider {
   }
 
   private _getHtmlForWebview(webview: vscode.Webview) {
+    const htmlUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "test.html")
+    );
+
     const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "out", "compiled", "Document.js")
     );
@@ -145,10 +150,13 @@ export class DocumentViewProvider {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="${stylesResetUri}" rel="stylesheet">
         <link href="${stylesMainUri}" rel="stylesheet">
+        <script>
+        </script>
       </head>
       <body>
       </body>
-      <script src="${scriptUri}" nonce="${nonce}">
+      <iframe title="doc" src=${htmlUri} nonce="${nonce}"></iframe>
+      // <script src="${scriptUri}" nonce="${nonce}">
       </html>`;
   }
 }
