@@ -1,22 +1,81 @@
 <script lang="ts">
   let text: string;
+  let excerpt: string = "";
+  let timer: any;
+  let results: any[] = [];
+  let baseUrl = "";
 
-  // const openDocumentView = (uriString: string) => {
-  //   const uri = Uri.file(vscode.env.uriScheme);
-  // };
+  const openSearchPanel = () => {
+    if (text.length <= 2) {
+      tsvscode.postMessage({
+        type: "onInfo",
+        value: "More than 2 chars needed!",
+      });
+      return;
+    }
+    tsvscode.postMessage({
+      type: "doSearch",
+      value: text,
+    });
+  };
+
+  const debounce = (e: Event) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      openSearchPanel();
+    }, 1000);
+  };
+
+  window.addEventListener("message", (event) => {
+    const message = event.data; // The JSON data our extension sent
+    excerpt = message["response"]["results"][0]["excerpt"];
+    results = Object.values(message.response.results);
+    baseUrl = message.response._links.base;
+    console.log(baseUrl);
+    console.log(results);
+  });
 </script>
 
 <div class="desciptor">Enter keyword to search</div>
 <div class="search-input">
-  <input bind:value={text} />
+  <input bind:value={text} on:keyup={debounce} />
 </div>
-<div class="results">
-  Search results for {text}...
+Search results for {text}...
+<div class="multi-result">
+  {#each results as result}
+    <div class="result">
+      <div class="title-line">
+        <a href="http://localhost">
+          <h3 class="title">
+            {@html result.title
+              .replaceAll("@@@hl@@@", "<em>")
+              .replaceAll("@@@endhl@@@", "</em>")}
+          </h3>
+        </a>
+      </div>
+      <div class="option-line">
+        [ <a href="{baseUrl}{result.url}">Open in browser</a> ] [Cached &#x2713;
+        &#x2717;]
+      </div>
+      {@html result.excerpt
+        .replaceAll("@@@hl@@@", "<strong>")
+        .replaceAll("@@@endhl@@@", "</strong>")}
+    </div>
+  {/each}
 </div>
 
 <style>
-  div {
-    margin-top: 100pt;
-    margin-bottom: 100pt;
+  div.result {
+    padding: 5pt;
+  }
+  .title {
+    font-weight: bold;
+  }
+  .title-line {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .option-line {
+    font-size: smaller;
   }
 </style>

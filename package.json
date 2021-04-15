@@ -46,8 +46,8 @@
         "category": "Conflux"
       },
       {
-        "command": "conflux.getBodyTest",
-        "title": "GetBodyTest",
+        "command": "conflux.doSearch",
+        "title": "DoSearch",
         "category": "Conflux"
       }
     ],
