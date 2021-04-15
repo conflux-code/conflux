@@ -1,26 +1,60 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
+import Confluence from "@webda/confluence-api";
+import { SearchPanel } from "./SearchPanel";
+import { SidebarProvider } from "./SidebarProvider";
+import { DocumentViewProvider } from "./DocumentViewProvider";
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  let config = {
+    username: "madhurjya.r",
+    password: "password",
+    baseUrl: "https://confluence.endurance.com",
+    version: 6,
+  };
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "conflux" is now active!');
+  const confluence = new Confluence(config);
+  const sidebarProvider = new SidebarProvider(context.extensionUri);
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('conflux.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.helloWorld", () => {
+      vscode.window.showInformationMessage("Hello World from Conflux!");
+    })
+  );
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Conflux!');
-	});
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.search", () => {
+      SearchPanel.createOrShow(context.extensionUri);
+    })
+  );
 
-	context.subscriptions.push(disposable);
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.document", () => {
+      DocumentViewProvider.createOrShow(context.extensionUri);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.refresh", async () => {
+      // SearchPanel.kill();
+      // SearchPanel.createOrShow(context.extensionUri);
+      await vscode.commands.executeCommand("workbench.action.closeSidebar");
+      await vscode.commands.executeCommand(
+        "workbench.view.extension.conflux-sidebar-view"
+      );
+      setTimeout(() => {
+        vscode.commands.executeCommand(
+          "workbench.action.webview.openDeveloperTools"
+        );
+      }, 500);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(
+      "conflux-sidebar",
+      sidebarProvider
+    )
+  );
 }
 
 // this method is called when your extension is deactivated
