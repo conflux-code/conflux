@@ -3,6 +3,7 @@ import Confluence from "@webda/confluence-api";
 import { SearchPanel } from "./SearchPanel";
 import { SidebarProvider } from "./SidebarProvider";
 import { DocumentViewProvider } from "./DocumentViewProvider";
+import { getBody, initialize } from "./common/commands";
 
 export function activate(context: vscode.ExtensionContext) {
   let config = {
@@ -55,7 +56,21 @@ export function activate(context: vscode.ExtensionContext) {
       sidebarProvider
     )
   );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.initialize", () =>
+      initialize(context)
+    )
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.getBodyTest", () =>
+      getBody(context)
+    )
+  );
 }
 
-// this method is called when your extension is deactivated
 export function deactivate() {}
+function data(arg0: string, data: any) {
+  vscode.window.showInformationMessage("Thanks for using conflux");
+}
