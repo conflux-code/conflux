@@ -33,11 +33,25 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.document", async (id) => {
-      let confluence: Confluence = await ConfluenceSingleton.getConfluenceObject(context);
-      const response = await confluence.getContentById(id);
-      const html = response["body"]["storage"]["value"];
+      let confluence: Confluence = await ConfluenceSingleton.getConfluenceObject(
+        context
+      );
+      const response = await confluence.getCustomContentById({
+        id,
+        expanders: ["body.view", "space"],
+      });
+      let html = response["body"]["view"]["value"];
+      html = escape(html);
+      const baseUrl = response["_links"]["base"];
+      const pageUrl = response["_links"]["webui"];
+      const title = response["title"];
       DocumentViewProvider.createOrShow(context.extensionUri);
-      DocumentViewProvider.currentPanel?._panel.webview.postMessage({ html });
+      DocumentViewProvider.currentPanel?._panel.webview.postMessage({
+        html,
+        baseUrl,
+        pageUrl,
+        title,
+      });
     })
   );
 

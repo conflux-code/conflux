@@ -113,7 +113,6 @@
   "dependencies": {
     "@webda/confluence-api": "^2.0.0-beta.0",
     "markdown-it": "^12.0.5",
-    "node-html-markdown": "^0.1.6",
-    "typescript-lru-cache": "^1.2.0"
+    "node-html-markdown": "^0.1.6"
   }
 }
