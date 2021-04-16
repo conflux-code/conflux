@@ -26,9 +26,15 @@
     }, 1000);
   };
 
+  const renderDocument = (result: any) => {
+    tsvscode.postMessage({
+      type: "renderDocument",
+      value: result.content.id,
+    });
+  };
+
   window.addEventListener("message", (event) => {
     const message = event.data; // The JSON data our extension sent
-    excerpt = message["response"]["results"][0]["excerpt"];
     results = Object.values(message.response.results);
     baseUrl = message.response._links.base;
     console.log(baseUrl);
@@ -45,7 +51,7 @@ Search results for {text}...
   {#each results as result}
     <div class="result">
       <div class="title-line">
-        <a href="http://localhost">
+        <a on:click={(e) => renderDocument(result)}>
           <h3 class="title">
             {@html result.title
               .replaceAll("@@@hl@@@", "<em>")

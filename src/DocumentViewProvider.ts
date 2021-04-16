@@ -9,7 +9,7 @@ export class DocumentViewProvider {
 
   public static readonly viewType = "document-view";
 
-  private readonly _panel: vscode.WebviewPanel;
+  public readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
   private _disposables: vscode.Disposable[] = [];
 
@@ -155,8 +155,7 @@ export class DocumentViewProvider {
       </head>
       <body>
       </body>
-      <iframe title="doc" src=${htmlUri} nonce="${nonce}"></iframe>
-      // <script src="${scriptUri}" nonce="${nonce}">
+      <script src="${scriptUri}" nonce="${nonce}">
       </html>`;
   }
 }
