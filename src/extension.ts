@@ -4,7 +4,7 @@ import { SearchPanel } from "./SearchPanel";
 import { SidebarProvider } from "./SidebarProvider";
 import { DocumentViewProvider } from "./DocumentViewProvider";
 import { initialize } from "./common/commands";
-import { getConfluenceObject } from "./common/confluence-util";
+import { ConfluenceSingleton } from "./common/confluence-singleton";
 
 export function activate(context: vscode.ExtensionContext) {
   const sidebarProvider = new SidebarProvider(context.extensionUri);
@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.doSearch", async (text) => {
       vscode.window.showInformationMessage(text);
-      let confluence = await getConfluenceObject(context);
+      let confluence = await ConfluenceSingleton.getConfluenceObject(context);
       const response = await confluence.search(
         `cql=(text ~ "${text}" AND type="page")`
       );
@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.document", async (id) => {
-      let confluence: Confluence = await getConfluenceObject(context);
+      let confluence: Confluence = await ConfluenceSingleton.getConfluenceObject(context);
       const response = await confluence.getContentById(id);
       const html = response["body"]["storage"]["value"];
       DocumentViewProvider.createOrShow(context.extensionUri);
