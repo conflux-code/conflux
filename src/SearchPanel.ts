@@ -103,6 +103,7 @@ export class SearchPanel {
           if (!data.value) {
             return;
           }
+          console.log("data", data);
           vscode.commands.executeCommand("conflux.doSearch", data.value);
           break;
         }

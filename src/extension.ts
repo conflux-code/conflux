@@ -1,11 +1,9 @@
 import * as vscode from "vscode";
-import Confluence from "@webda/confluence-api";
-import { SearchPanel } from "./SearchPanel";
-import { SidebarProvider } from "./SidebarProvider";
-import { DocumentViewProvider } from "./DocumentViewProvider";
 import { initialize } from "./common/commands";
 import { ConfluenceSingleton } from "./common/confluence-singleton";
-import { Constants } from "./common/constants";
+import { DocumentViewProvider } from "./DocumentViewProvider";
+import { SearchPanel } from "./SearchPanel";
+import { SidebarProvider } from "./SidebarProvider";
 
 export async function activate(context: vscode.ExtensionContext) {
   const sidebarProvider = new SidebarProvider(context.extensionUri);
@@ -30,12 +28,22 @@ export async function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("conflux.doSearch", async (text) => {
-      const response = await (
-        await ConfluenceSingleton.getConfluenceObject(context)
-      ).search(`cql=(text ~ "${text}" AND type="page")`);
-      SearchPanel.currentPanel?._panel.webview.postMessage({ response });
-    })
+    vscode.commands.registerCommand(
+      "conflux.doSearch",
+      async ({ text, cql }) => {
+        let response: any;
+        if (cql) {
+          response = await (
+            await ConfluenceSingleton.getConfluenceObject(context)
+          ).search(`cql=(${text})`);
+        } else {
+          response = await (
+            await ConfluenceSingleton.getConfluenceObject(context)
+          ).search(`cql=(text ~ "${text}" AND type="page")`);
+        }
+        SearchPanel.currentPanel?._panel.webview.postMessage({ response });
+      }
+    )
   );
 
   context.subscriptions.push(
