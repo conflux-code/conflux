@@ -106,6 +106,13 @@ export class SearchPanel {
           vscode.commands.executeCommand("conflux.doSearch", data.value);
           break;
         }
+        case "renderDocument": {
+          if (!data.value) {
+            return;
+          }
+          vscode.commands.executeCommand("conflux.document", data.value);
+          break;
+        }
       }
     });
   }

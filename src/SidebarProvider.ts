@@ -65,21 +65,21 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     const nonce = getNonce();
 
     return `<!DOCTYPE html>
-            <html lang="en">
-            <head>
-              <meta charset="UTF-8">
-              <meta http-equiv="Content-Security-Policy" content="img-src https: data:; style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}';">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <link href="${styleResetUri}" rel="stylesheet">
-              <link href="${styleVSCodeUri}" rel="stylesheet">
-              <link href="${styleMainUri}" rel="stylesheet">
-              <script nonce="${nonce}">
-                const tsvscode = acquireVsCodeApi();
-              </script>
-             </head>
-            <body>
-              <script nonce="${nonce}" src="${scriptUri}"></script>
-            </body>
-            </html>`;
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="${styleVSCodeUri}" rel="stylesheet">
+        <link href="${styleResetUri}" rel="stylesheet">
+        <link href="${styleMainUri}" rel="stylesheet">
+        <script nonce="${nonce}">
+          const tsvscode = acquireVsCodeApi();
+        </script>
+      </head>
+      <body>
+      </body>
+      <script src="${scriptUri}" nonce="${nonce}">
+      </html>`;
   }
 }
