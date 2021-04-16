@@ -35,4 +35,18 @@ export class ConfluenceSingleton {
     ConfluenceSingleton.confluence = new Confluence(config);
     return ConfluenceSingleton.confluence;
   }
+
+  public static async closeConfluenceObjAndLogOut(
+    context: vscode.ExtensionContext
+  ) {
+    ConfluenceSingleton.confluence = undefined;
+    const username: string | undefined = await context.secrets.get(
+      Constants.userNameKey
+    );
+    if (username === undefined) {
+      throw new Error("Username not found");
+    }
+    await context.secrets.delete(username);
+    await context.secrets.delete(Constants.userNameKey);
+  }
 }
