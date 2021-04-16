@@ -5,9 +5,18 @@ import { SidebarProvider } from "./SidebarProvider";
 import { DocumentViewProvider } from "./DocumentViewProvider";
 import { initialize } from "./common/commands";
 import { ConfluenceSingleton } from "./common/confluence-singleton";
+import { Constants } from "./common/constants";
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   const sidebarProvider = new SidebarProvider(context.extensionUri);
+  let isLoggedIn: boolean = true;
+  try {
+    await ConfluenceSingleton.getConfluenceObject(context);
+  } catch (error) {
+    isLoggedIn = false;
+  }
+  sidebarProvider.setLoggedIn(isLoggedIn);
+
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.helloWorld", () => {
       vscode.window.showInformationMessage("Hello World from Conflux!");
@@ -22,21 +31,18 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.doSearch", async (text) => {
-      vscode.window.showInformationMessage(text);
-      let confluence = await ConfluenceSingleton.getConfluenceObject(context);
-      const response = await confluence.search(
-        `cql=(text ~ "${text}" AND type="page")`
-      );
+      const response = await (
+        await ConfluenceSingleton.getConfluenceObject(context)
+      ).search(`cql=(text ~ "${text}" AND type="page")`);
       SearchPanel.currentPanel?._panel.webview.postMessage({ response });
     })
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.document", async (id) => {
-      let confluence: Confluence = await ConfluenceSingleton.getConfluenceObject(
-        context
-      );
-      const response = await confluence.getCustomContentById({
+      const response = await (
+        await ConfluenceSingleton.getConfluenceObject(context)
+      ).getCustomContentById({
         id,
         expanders: ["body.view", "space"],
       });
@@ -79,9 +85,18 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("conflux.initialize", () =>
-      initialize(context)
-    )
+    vscode.commands.registerCommand("conflux.initialize", async () => {
+      await initialize(context);
+      sidebarProvider.setLoggedIn(true);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.logOut", async () => {
+      await ConfluenceSingleton.closeConfluenceObjAndLogOut(context);
+      vscode.window.showInformationMessage("Logged out successfully!");
+      sidebarProvider.setLoggedIn(false);
+    })
   );
 }
 

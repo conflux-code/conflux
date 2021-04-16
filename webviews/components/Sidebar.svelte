@@ -1,45 +1,42 @@
 <script lang="ts">
-  import { empty } from "svelte/internal";
-
-  let todos = [];
-  let count = 0;
-  let result = "search";
-
-  const mockSearch = () => {
-    count++;
-    result = "search" + count;
-  };
-
-  const onKeyPress = (e: KeyboardEvent) => {
-    var keyCode = e.code || e.key;
-    if (keyCode == "Enter") {
-      mockSearch();
-    }
-  };
-
-  const onMouseClick = (e: MouseEvent) => {
-    mockSearch();
-  };
-
+  let loggedIn: Promise<boolean>;
+  tsvscode.postMessage({
+    type: "initializeLogInStatus",
+    value: "",
+  });
   const openSearchPanel = (e: MouseEvent) => {
     tsvscode.postMessage({
       type: "activateSearch",
       value: "",
     });
   };
+
+  const logOut = (e: MouseEvent) => {
+    tsvscode.postMessage({
+      type: "logOut",
+      value: "",
+    });
+  };
+
+  const logIn = (e: MouseEvent) => {
+    tsvscode.postMessage({
+      type: "logIn",
+      value: "",
+    });
+  };
+
+  window.addEventListener("message", (event) => {
+    console.log("message is here", event);
+    const message = event.data; // The JSON data our extension sent
+    loggedIn = Promise.resolve(message.loggedIn);
+  });
 </script>
 
-<div>Search Directly</div>
-<input on:keypress={onKeyPress} />
-<button on:click={onMouseClick}>Search</button>
-<button>Reset Results</button>
-<br />
-<div>{result}</div>
-
-<button on:click={openSearchPanel}> Search in panel </button>
-
-<style>
-  div {
-    color: pink;
-  }
-</style>
+{#await loggedIn then value}
+  {#if value}
+    <button on:click={openSearchPanel}> Search in panel </button>
+    <button on:click={logOut}> Log out </button>
+  {:else}
+    <button on:click={logIn}> Login </button>
+  {/if}
+{/await}

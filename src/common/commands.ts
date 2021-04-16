@@ -33,13 +33,13 @@ export async function initialize(
           increment: 20,
           message: "Testing your credentials",
         });
-        await confluence.fetch(Constants.baseUri + "/rest/api/user/current");
+        await confluence.fetch(Constants.baseUri + Constants.currentUserPath);
         progress.report({
           increment: 100,
           message: "Credentials verified! Storing them safely.",
         });
         await context.secrets.store(username, password);
-        await context.globalState.update(Constants.userNameKey, username);
+        await context.secrets.store(Constants.userNameKey, username);
         vscode.window.showInformationMessage("Credentials Verified!");
       }
     );
