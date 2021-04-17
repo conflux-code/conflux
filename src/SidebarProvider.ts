@@ -64,6 +64,10 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           await vscode.commands.executeCommand("conflux.initialize");
           break;
         }
+        case "clearCaches": {
+          vscode.commands.executeCommand("conflux.clearCaches");
+          break;
+        }
         case "initializeLogInStatus": {
           this._view?.webview.postMessage({ loggedIn: this.isLoggedIn });
         }

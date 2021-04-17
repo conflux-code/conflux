@@ -28,8 +28,13 @@ export class Cache<T> {
     return this._lru.get(key);
   };
 
+  public has = async (key: string) => {
+    return this._lru.has(key);
+  };
+
   public clearCache = async () => {
     this._lru.reset();
+    this._deleteCacheFile();
   };
 
   private _createCacheDirectory = async () => {

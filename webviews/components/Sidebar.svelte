@@ -25,6 +25,13 @@
     });
   };
 
+  const clearCaches = (e: MouseEvent) => {
+    tsvscode.postMessage({
+      type: "clearCaches",
+      value: "",
+    });
+  };
+
   window.addEventListener("message", (event) => {
     console.log("message is here", event);
     const message = event.data; // The JSON data our extension sent
@@ -34,9 +41,10 @@
 
 {#await loggedIn then value}
   {#if value}
-    <button on:click={openSearchPanel}> Search in panel </button>
-    <button on:click={logOut}> Log out </button>
+    <button on:click={openSearchPanel}>Search</button>
+    <button on:click={logOut}>Logout</button>
   {:else}
-    <button on:click={logIn}> Login </button>
+    <button on:click={logIn}>Login</button>
   {/if}
+  <button on:click={clearCaches}>Clear cache</button>
 {/await}

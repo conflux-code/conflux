@@ -47,15 +47,17 @@ export async function activate(
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "conflux.doSearch",
-      async ({ text, cql }) => {
+      async ({ text, cql, reload = false }) => {
         let response: any;
         if (cql) {
           response = await searchProvider.getCachedSearchResults(
-            `cql=(${text})`
+            `cql=(${text})`,
+            reload
           );
         } else {
           response = await searchProvider.getCachedSearchResults(
-            `cql=(text ~ "${text}" AND type="page")`
+            `cql=(text ~ "${text}" AND type="page")`,
+            reload
           );
         }
         SearchPanel.currentPanel?._panel.webview.postMessage(response);
@@ -64,15 +66,18 @@ export async function activate(
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("conflux.document", async (id) => {
-      DocumentViewProvider.createOrShow(
-        context.extensionUri,
-        imagesDirectoryUri
-      );
-      DocumentViewProvider.currentPanel?._panel.webview.postMessage(
-        await contentProvider.getCachedBodyViewById(id)
-      );
-    })
+    vscode.commands.registerCommand(
+      "conflux.document",
+      async ({ id, reload = false }) => {
+        DocumentViewProvider.createOrShow(
+          context.extensionUri,
+          imagesDirectoryUri
+        );
+        DocumentViewProvider.currentPanel?._panel.webview.postMessage(
+          await contentProvider.getCachedBodyViewById(id, reload)
+        );
+      }
+    )
   );
 
   context.subscriptions.push(
