@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { bind } from "svelte/internal";
-
   let text: string;
   let timer: any;
   let results: any[] = [];
@@ -59,7 +57,7 @@
   {#each results as result}
     <div class="result">
       <div class="title-line">
-        <a on:click={(e) => renderDocument(result)}>
+        <a on:click={() => renderDocument(result)}>
           <h3 class="title">
             {@html result.title
               .replaceAll("@@@hl@@@", "<em>")

@@ -4,9 +4,14 @@ import { ConfluenceSingleton } from "./common/confluence-singleton";
 import { DocumentViewProvider } from "./DocumentViewProvider";
 import { SearchPanel } from "./SearchPanel";
 import { SidebarProvider } from "./SidebarProvider";
+import { ConfluenceContentProvider } from "./providers/confluence-content";
+import { ConfluenceSearchProvider } from "./providers/confluence-search";
 
 export async function activate(context: vscode.ExtensionContext) {
   const sidebarProvider = new SidebarProvider(context.extensionUri);
+  const contentProvider = new ConfluenceContentProvider(context, 20);
+  const searchProvider = new ConfluenceSearchProvider(context, 20);
+
   let isLoggedIn: boolean = true;
   try {
     await ConfluenceSingleton.getConfluenceObject(context);
@@ -14,7 +19,6 @@ export async function activate(context: vscode.ExtensionContext) {
     isLoggedIn = false;
   }
   sidebarProvider.setLoggedIn(isLoggedIn);
-
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.helloWorld", () => {
       vscode.window.showInformationMessage("Hello World from Conflux!");
@@ -33,39 +37,25 @@ export async function activate(context: vscode.ExtensionContext) {
       async ({ text, cql }) => {
         let response: any;
         if (cql) {
-          response = await (
-            await ConfluenceSingleton.getConfluenceObject(context)
-          ).search(`cql=(${text})`);
+          response = await searchProvider.getCachedSearchResults(
+            `cql=(${text})`
+          );
         } else {
-          response = await (
-            await ConfluenceSingleton.getConfluenceObject(context)
-          ).search(`cql=(text ~ "${text}" AND type="page")`);
+          response = await searchProvider.getCachedSearchResults(
+            `cql=(text ~ "${text}" AND type="page")`
+          );
         }
-        SearchPanel.currentPanel?._panel.webview.postMessage({ response });
+        SearchPanel.currentPanel?._panel.webview.postMessage(response);
       }
     )
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.document", async (id) => {
-      const response = await (
-        await ConfluenceSingleton.getConfluenceObject(context)
-      ).getCustomContentById({
-        id,
-        expanders: ["body.view", "space"],
-      });
-      let html = response["body"]["view"]["value"];
-      html = escape(html);
-      const baseUrl = response["_links"]["base"];
-      const pageUrl = response["_links"]["webui"];
-      const title = response["title"];
       DocumentViewProvider.createOrShow(context.extensionUri);
-      DocumentViewProvider.currentPanel?._panel.webview.postMessage({
-        html,
-        baseUrl,
-        pageUrl,
-        title,
-      });
+      DocumentViewProvider.currentPanel?._panel.webview.postMessage(
+        await contentProvider.getCachedBodyViewById(id)
+      );
     })
   );
 
