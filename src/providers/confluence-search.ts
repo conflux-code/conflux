@@ -9,21 +9,25 @@ export class ConfluenceSearchProvider {
     this._cache = new Cache("search-cache", this._context, cacheSize);
   }
 
-  public getCachedSearchResults = async (cql: string) => {
-    let cachedResponse: any = await this._cache.get(cql);
-    if (cachedResponse === undefined) {
-      let response = await this.getSearchResults(cql);
+  public getCachedSearchResults = async (
+    cql: string,
+    reloadCache: boolean = false
+  ) => {
+    const cachedResponse: any = await this._cache.get(cql);
+    if (cachedResponse === undefined || reloadCache) {
+      const response = await this.getSearchResults(cql);
       this._cache.set(cql, JSON.stringify(response));
-      return response;
+      return { response };
     }
-    return JSON.parse(cachedResponse);
+    const response = JSON.parse(cachedResponse);
+    return { response, cached: true };
   };
 
   public getSearchResults = async (cql: string) => {
     const response: any = await (
       await ConfluenceSingleton.getConfluenceObject(this._context)
     ).search(cql);
-    return { response };
+    return response;
   };
 
   public clearCache = async () => {

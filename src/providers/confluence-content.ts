@@ -9,14 +9,24 @@ export class ConfluenceContentProvider {
     this._cache = new Cache("page-cache", this._context, cacheSize);
   }
 
-  public getCachedBodyViewById = async (id: any) => {
+  public getCachedBodyViewById = async (
+    id: any,
+    reloadCache: boolean = false
+  ) => {
     const cachedResponse: any = await this._cache.get(id);
-    if (cachedResponse === undefined) {
+    if (cachedResponse === undefined || reloadCache) {
       const response = await this.getBodyViewById(id);
       this._cache.set(id, JSON.stringify(response));
       return response;
     }
-    return JSON.parse(cachedResponse);
+    const response = JSON.parse(cachedResponse);
+    return {
+      html: response["html"],
+      baseUrl: response["baseUrl"],
+      pageUrl: response["pageUrl"],
+      title: response["title"],
+      cached: id,
+    };
   };
 
   public getBodyViewById = async (id: any) => {

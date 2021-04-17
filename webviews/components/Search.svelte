@@ -4,6 +4,7 @@
   let results: any[] = [];
   let baseUrl = "";
   let cql: boolean = false;
+  let cached: boolean = false;
 
   const openSearchPanel = () => {
     if (text.length <= 2) {
@@ -37,49 +38,52 @@
     const message = event.data; // The JSON data our extension sent
     results = Object.values(message.response.results);
     baseUrl = message.response._links.base;
-    console.log(baseUrl);
-    console.log(results);
+    cached = !(message.cached === undefined);
+    console.log("Cached? {}", message.cached);
   });
 </script>
 
 <div class="desciptor">Enter keyword to search</div>
 <div class="search-input">
   <input bind:value={text} on:keyup={debounce} />
+  <label>
+    <input type="checkbox" bind:checked={cql} label="CQL" />
+    CQL Enabled
+  </label>
+  <br />
+  <br />
   {#if text !== undefined}
     Search results for {text}...
+    {#if cached}
+      <div class="cache-header">
+        Showing cached results. <button class="link-text">Fetch latest?</button>
+      </div>
+    {/if}
   {/if}
 </div>
-<label>
-  <input type="checkbox" bind:checked={cql} label="CQL" />
-  CQL Enabled
-</label>
+<br />
 <div class="multi-result">
   {#each results as result}
-    <div class="result">
-      <div class="title-line">
-        <a on:click={() => renderDocument(result)}>
-          <h3 class="title">
-            {@html result.title
-              .replaceAll("@@@hl@@@", "<em>")
-              .replaceAll("@@@endhl@@@", "</em>")}
-          </h3>
-        </a>
+    <div class="title-line">
+      <button class="secondary title" on:click={() => renderDocument(result)}>
+        <h3>
+          {@html result.title
+            .replaceAll("@@@hl@@@", "<em>")
+            .replaceAll("@@@endhl@@@", "</em>")}
+        </h3>
+      </button>
+
+      <div class="subtitle">
+        {@html result.excerpt
+          .replaceAll("@@@hl@@@", "<strong>")
+          .replaceAll("@@@endhl@@@", "</strong>")}
       </div>
-      <div class="option-line">
-        [ <a href="{baseUrl}{result.url}">Open in browser</a> ] [Cached &#x2713;
-        &#x2717;]
-      </div>
-      {@html result.excerpt
-        .replaceAll("@@@hl@@@", "<strong>")
-        .replaceAll("@@@endhl@@@", "</strong>")}
+      <div class="option-line">[ Cached &#x2713 ]</div>
     </div>
   {/each}
 </div>
 
 <style>
-  div.result {
-    padding: 5pt;
-  }
   .title {
     font-weight: bold;
   }
@@ -89,5 +93,29 @@
   }
   .option-line {
     font-size: smaller;
+    margin-bottom: 20px;
+    float: right;
+    color: var(--vscode-button-background);
+  }
+
+  .cache-header {
+    float: right;
+  }
+
+  button.link-text {
+    width: 90px !important;
+  }
+
+  button.title {
+    text-align: start;
+    margin: 1px 1px;
+  }
+  div.subtitle {
+    margin-bottom: 2px;
+    padding: 4px 4px;
+    overflow-wrap: break-word;
+  }
+  input {
+    margin-bottom: 5px;
   }
 </style>
