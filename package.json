@@ -14,7 +14,13 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [],
+    "commands": [
+      {
+        "category": "Conflux",
+        "title": "Clear all caches",
+        "command": "conflux.clearCaches"
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {
@@ -77,8 +83,12 @@
     "webpack-cli": "^4.4.0"
   },
   "dependencies": {
+    "@types/jquery": "^3.5.5",
     "@webda/confluence-api": "^2.0.0-beta.0",
+    "file-type": "^16.3.0",
+    "jquery": "^3.6.0",
     "markdown-it": "^12.0.5",
-    "node-html-markdown": "^0.1.6"
+    "node-html-markdown": "^0.1.6",
+    "node-html-parser": "^3.1.5"
   }
 }

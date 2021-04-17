@@ -11,7 +11,7 @@ export class DocumentViewProvider {
   private readonly _extensionUri: vscode.Uri;
   private _disposables: vscode.Disposable[] = [];
 
-  public static createOrShow(extensionUri: vscode.Uri) {
+  public static createOrShow(extensionUri: vscode.Uri, imagesUri: vscode.Uri) {
     const column = vscode.window.activeTextEditor
       ? vscode.window.activeTextEditor.viewColumn
       : undefined;
@@ -29,10 +29,12 @@ export class DocumentViewProvider {
       {
         enableScripts: true,
         localResourceRoots: [
+          imagesUri,
           vscode.Uri.joinPath(extensionUri, "media"),
           vscode.Uri.joinPath(extensionUri, "out/compiled"),
           vscode.Uri.joinPath(extensionUri),
         ],
+        retainContextWhenHidden: true,
       }
     );
 

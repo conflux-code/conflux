@@ -2,14 +2,24 @@ import * as vscode from "vscode";
 import { initialize } from "./common/commands";
 import { ConfluenceSingleton } from "./common/confluence-singleton";
 import { DocumentViewProvider } from "./DocumentViewProvider";
-import { SearchPanel } from "./SearchPanel";
-import { SidebarProvider } from "./SidebarProvider";
 import { ConfluenceContentProvider } from "./providers/confluence-content";
 import { ConfluenceSearchProvider } from "./providers/confluence-search";
+import { SearchPanel } from "./SearchPanel";
+import { SidebarProvider } from "./SidebarProvider";
 
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate(
+  context: vscode.ExtensionContext
+): Promise<void> {
+  const imagesDirectoryUri = vscode.Uri.joinPath(
+    context.globalStorageUri,
+    "images"
+  );
   const sidebarProvider = new SidebarProvider(context.extensionUri);
-  const contentProvider = new ConfluenceContentProvider(context, 20);
+  const contentProvider = new ConfluenceContentProvider(
+    context,
+    20,
+    imagesDirectoryUri
+  );
   const searchProvider = new ConfluenceSearchProvider(context, 20);
 
   let isLoggedIn: boolean = true;
@@ -19,6 +29,9 @@ export async function activate(context: vscode.ExtensionContext) {
     isLoggedIn = false;
   }
   sidebarProvider.setLoggedIn(isLoggedIn);
+  await vscode.workspace.fs.createDirectory(context.globalStorageUri);
+  await vscode.workspace.fs.createDirectory(imagesDirectoryUri);
+
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.helloWorld", () => {
       vscode.window.showInformationMessage("Hello World from Conflux!");
@@ -52,7 +65,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.document", async (id) => {
-      DocumentViewProvider.createOrShow(context.extensionUri);
+      DocumentViewProvider.createOrShow(
+        context.extensionUri,
+        imagesDirectoryUri
+      );
       DocumentViewProvider.currentPanel?._panel.webview.postMessage(
         await contentProvider.getCachedBodyViewById(id)
       );
@@ -86,6 +102,14 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand("conflux.initialize", async () => {
       await initialize(context);
       sidebarProvider.setLoggedIn(true);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.clearCaches", async () => {
+      await contentProvider.clearCache();
+      await searchProvider.clearCache();
+      vscode.window.showInformationMessage("Caches cleared.");
     })
   );
 

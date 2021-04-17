@@ -4,8 +4,8 @@ import { TextDecoder, TextEncoder } from "util";
 import LRUCache = require("lru-cache");
 import { UserMessages } from "./user-messages";
 
-export class Cache {
-  private _lru: LRU<string, string>;
+export class Cache<T> {
+  private _lru: LRU<string, T>;
 
   constructor(
     public id: string,
@@ -18,7 +18,7 @@ export class Cache {
     this._loadCache();
   }
 
-  public set = async (key: string, value: string) => {
+  public set = async (key: string, value: T) => {
     const success: boolean = this._lru.set(key, value);
     this._saveCache();
     return success;
@@ -29,7 +29,7 @@ export class Cache {
   };
 
   public clearCache = async () => {
-    this._lru.prune();
+    this._lru.reset();
   };
 
   private _createCacheDirectory = async () => {

@@ -39,6 +39,7 @@ export class SearchPanel {
           vscode.Uri.joinPath(extensionUri, "media"),
           vscode.Uri.joinPath(extensionUri, "out/compiled"),
         ],
+        retainContextWhenHidden: true,
       }
     );
 

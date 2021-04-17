@@ -9,7 +9,7 @@ export async function initialize(
   try {
     const { username, password } = await getInputs();
     const confluence = ConfluenceSingleton.createConfluenceObj(username, password);
-    verifyAndStoreCredentials(confluence, username, password);
+    await verifyAndStoreCredentials(confluence, username, password);
   } catch (error) {
     console.log(error);
     vscode.window.showInformationMessage(
@@ -17,11 +17,11 @@ export async function initialize(
     );
   }
 
-  function verifyAndStoreCredentials(
+  async function verifyAndStoreCredentials(
     confluence: Confluence,
     username: string,
     password: string
-  ): void {
+  ): Promise<void> {
     vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
@@ -40,7 +40,7 @@ export async function initialize(
         });
         await context.secrets.store(username, password);
         await context.secrets.store(Constants.userNameKey, username);
-        vscode.window.showInformationMessage("Credentials Verified!");
+        await vscode.window.showInformationMessage("Credentials Verified!");
       }
     );
   }
