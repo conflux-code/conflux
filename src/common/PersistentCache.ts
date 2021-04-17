@@ -1,16 +1,21 @@
 import * as vscode from "vscode";
 import * as LRU from "lru-cache";
 import { TextDecoder, TextEncoder } from "util";
+import LRUCache = require("lru-cache");
 
 export class Cache {
-  private _lru: LRU<string, string> = new LRU({ max: 20 });
+  private _lru: LRU<string, string>;
 
-  constructor(private readonly _context: vscode.ExtensionContext) {
+  constructor(private readonly _context: vscode.ExtensionContext, n: number) {
     this._createCacheDirectory();
+    this._lru = new LRUCache({ max: n });
+    this._loadCache();
   }
 
   public set = async (key: string, value: string) => {
-    this._lru.set(key, value);
+    const success: boolean = this._lru.set(key, value);
+    this._saveCache();
+    return success;
   };
 
   public get = async (key: string) => {
