@@ -7,7 +7,7 @@ export class DocumentViewProvider {
 
   public static readonly viewType = "document-view";
 
-  public readonly panel: vscode.WebviewPanel;
+  public readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
   private _disposables: vscode.Disposable[] = [];
 
@@ -17,7 +17,7 @@ export class DocumentViewProvider {
       : undefined;
 
     if (DocumentViewProvider.currentPanel) {
-      DocumentViewProvider.currentPanel.panel.reveal(column);
+      DocumentViewProvider.currentPanel._panel.reveal(column);
       DocumentViewProvider.currentPanel._update();
       return;
     }
@@ -55,15 +55,15 @@ export class DocumentViewProvider {
   }
 
   private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
-    this.panel = panel;
+    this._panel = panel;
     this._extensionUri = extensionUri;
     this._update();
-    this.panel.onDidDispose(() => this.dispose(), null, this._disposables);
+    this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
   }
 
   public dispose() {
     DocumentViewProvider.currentPanel = undefined;
-    this.panel.dispose();
+    this._panel.dispose();
     while (this._disposables.length) {
       const x = this._disposables.pop();
       if (x) {
@@ -73,9 +73,9 @@ export class DocumentViewProvider {
   }
 
   private async _update() {
-    const webview = this.panel.webview;
+    const webview = this._panel.webview;
 
-    this.panel.webview.html = this._getHtmlForWebview(webview);
+    this._panel.webview.html = this._getHtmlForWebview(webview);
     webview.onDidReceiveMessage(async (data) => {
       switch (data.type) {
         case "onInfo": {

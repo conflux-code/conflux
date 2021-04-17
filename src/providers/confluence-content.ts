@@ -1,23 +1,22 @@
 import { ExtensionContext } from "vscode";
-import { Cache } from "./PersistentCache";
-import { ConfluenceSingleton } from "./confluence-singleton";
+import { Cache } from "../common/persistent-cache";
+import { ConfluenceSingleton } from "../common/confluence-singleton";
 
 export class ConfluenceContentProvider {
   private _cache: Cache;
 
   constructor(private readonly _context: ExtensionContext, cacheSize: number) {
-    this._cache = new Cache(this._context, cacheSize);
+    this._cache = new Cache("page-cache", this._context, cacheSize);
   }
 
   public getCachedBodyViewById = async (id: any) => {
-    let response: any = await this._cache.get(id);
-    if (response === undefined) {
-      let response = await this.getBodyViewById(id);
+    const cachedResponse: any = await this._cache.get(id);
+    if (cachedResponse === undefined) {
+      const response = await this.getBodyViewById(id);
       this._cache.set(id, JSON.stringify(response));
-      console.log(response);
       return response;
     }
-    return JSON.parse(response);
+    return JSON.parse(cachedResponse);
   };
 
   public getBodyViewById = async (id: any) => {
@@ -28,6 +27,10 @@ export class ConfluenceContentProvider {
       expanders: ["body.view", "space"],
     });
     return this._getDetailsFromResponse(response);
+  };
+
+  public clearCache = async () => {
+    this._cache.clearCache();
   };
 
   private _getDetailsFromResponse = (response: any) => {

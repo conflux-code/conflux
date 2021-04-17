@@ -4,11 +4,14 @@ import { ConfluenceSingleton } from "./common/confluence-singleton";
 import { DocumentViewProvider } from "./DocumentViewProvider";
 import { SearchPanel } from "./SearchPanel";
 import { SidebarProvider } from "./SidebarProvider";
-import { ConfluenceContentProvider } from "./common/ConfluenceContentProvider";
+import { ConfluenceContentProvider } from "./providers/confluence-content";
+import { ConfluenceSearchProvider } from "./providers/confluence-search";
 
 export async function activate(context: vscode.ExtensionContext) {
   const sidebarProvider = new SidebarProvider(context.extensionUri);
   const contentProvider = new ConfluenceContentProvider(context, 20);
+  const searchProvider = new ConfluenceSearchProvider(context, 20);
+
   let isLoggedIn: boolean = true;
   try {
     await ConfluenceSingleton.getConfluenceObject(context);
@@ -34,15 +37,15 @@ export async function activate(context: vscode.ExtensionContext) {
       async ({ text, cql }) => {
         let response: any;
         if (cql) {
-          response = await (
-            await ConfluenceSingleton.getConfluenceObject(context)
-          ).search(`cql=(${text})`);
+          response = await searchProvider.getCachedSearchResults(
+            `cql=(${text})`
+          );
         } else {
-          response = await (
-            await ConfluenceSingleton.getConfluenceObject(context)
-          ).search(`cql=(text ~ "${text}" AND type="page")`);
+          response = await searchProvider.getCachedSearchResults(
+            `cql=(text ~ "${text}" AND type="page")`
+          );
         }
-        SearchPanel.currentPanel?._panel.webview.postMessage({ response });
+        SearchPanel.currentPanel?._panel.webview.postMessage(response);
       }
     )
   );
@@ -50,7 +53,7 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.document", async (id) => {
       DocumentViewProvider.createOrShow(context.extensionUri);
-      DocumentViewProvider.currentPanel?.panel.webview.postMessage(
+      DocumentViewProvider.currentPanel?._panel.webview.postMessage(
         await contentProvider.getCachedBodyViewById(id)
       );
     })
