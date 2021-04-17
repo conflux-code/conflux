@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { bind } from "svelte/internal";
+
   let text: string;
-  let excerpt: string = "";
   let timer: any;
   let results: any[] = [];
   let baseUrl = "";
+  let cql: boolean = false;
 
   const openSearchPanel = () => {
     if (text.length <= 2) {
@@ -15,7 +17,7 @@
     }
     tsvscode.postMessage({
       type: "doSearch",
-      value: text,
+      value: { text, cql },
     });
   };
 
@@ -45,8 +47,14 @@
 <div class="desciptor">Enter keyword to search</div>
 <div class="search-input">
   <input bind:value={text} on:keyup={debounce} />
+  {#if text !== undefined}
+    Search results for {text}...
+  {/if}
 </div>
-Search results for {text}...
+<label>
+  <input type="checkbox" bind:checked={cql} label="CQL" />
+  CQL Enabled
+</label>
 <div class="multi-result">
   {#each results as result}
     <div class="result">

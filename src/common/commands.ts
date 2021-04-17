@@ -1,16 +1,14 @@
 import Confluence from "@webda/confluence-api";
 import * as vscode from "vscode";
-import { getConfluenceObject } from "./confluence-util";
+import { ConfluenceSingleton } from "./confluence-singleton";
 import { Constants } from "./constants";
-import { NodeHtmlMarkdown, NodeHtmlMarkdownOptions } from "node-html-markdown";
-import { writeFileSync } from "fs";
 
 export async function initialize(
   context: vscode.ExtensionContext
 ): Promise<void> {
   try {
     const { username, password } = await getInputs();
-    const confluence = getConfluenceClient(username, password);
+    const confluence = ConfluenceSingleton.createConfluenceObj(username, password);
     verifyAndStoreCredentials(confluence, username, password);
   } catch (error) {
     console.log(error);
@@ -27,7 +25,7 @@ export async function initialize(
     vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: "Testing credentials",
+        title: "Conflux: Credential Verification",
         cancellable: false,
       },
       async (progress, token) => {
@@ -35,13 +33,13 @@ export async function initialize(
           increment: 20,
           message: "Testing your credentials",
         });
-        await confluence.fetch(Constants.baseUri + "/rest/api/user/current");
+        await confluence.fetch(Constants.baseUri + Constants.currentUserPath);
         progress.report({
           increment: 100,
           message: "Credentials verified! Storing them safely.",
         });
         await context.secrets.store(username, password);
-        await context.globalState.update(Constants.userNameKey, username);
+        await context.secrets.store(Constants.userNameKey, username);
         vscode.window.showInformationMessage("Credentials Verified!");
       }
     );

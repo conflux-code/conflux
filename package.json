@@ -10,47 +10,11 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:conflux.helloWorld",
-    "onCommand:conflux.search",
-    "onCommand:conflux.refresh",
-    "onCommand:conflux.document",
-    "onView:conflux-sidebar",
-    "onCommand:conflux.initialize"
+    "*"
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "conflux.helloWorld",
-        "title": "Hello World",
-        "category": "Conflux"
-      },
-      {
-        "command": "conflux.search",
-        "title": "Search",
-        "category": "Conflux"
-      },
-      {
-        "command": "conflux.refresh",
-        "title": "Refresh WebView with Developer Tools",
-        "category": "Conflux"
-      },
-      {
-        "command": "conflux.document",
-        "title": "Conflux Document Test",
-        "category": "Conflux"
-      },
-      {
-        "command": "conflux.initialize",
-        "title": "Initialize Conflux",
-        "category": "Conflux"
-      },
-      {
-        "command": "conflux.doSearch",
-        "title": "DoSearch",
-        "category": "Conflux"
-      }
-    ],
+    "commands": [],
     "viewsContainers": {
       "activitybar": [
         {
@@ -115,7 +79,6 @@
   "dependencies": {
     "@webda/confluence-api": "^2.0.0-beta.0",
     "markdown-it": "^12.0.5",
-    "node-html-markdown": "^0.1.6",
-    "typescript-lru-cache": "^1.2.0"
+    "node-html-markdown": "^0.1.6"
   }
 }

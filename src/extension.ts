@@ -1,13 +1,20 @@
 import * as vscode from "vscode";
-import Confluence from "@webda/confluence-api";
+import { initialize } from "./common/commands";
+import { ConfluenceSingleton } from "./common/confluence-singleton";
+import { DocumentViewProvider } from "./DocumentViewProvider";
 import { SearchPanel } from "./SearchPanel";
 import { SidebarProvider } from "./SidebarProvider";
-import { DocumentViewProvider } from "./DocumentViewProvider";
-import { initialize } from "./common/commands";
-import { getConfluenceObject } from "./common/confluence-util";
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   const sidebarProvider = new SidebarProvider(context.extensionUri);
+  let isLoggedIn: boolean = true;
+  try {
+    await ConfluenceSingleton.getConfluenceObject(context);
+  } catch (error) {
+    isLoggedIn = false;
+  }
+  sidebarProvider.setLoggedIn(isLoggedIn);
+
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.helloWorld", () => {
       vscode.window.showInformationMessage("Hello World from Conflux!");
@@ -21,23 +28,44 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("conflux.doSearch", async (text) => {
-      vscode.window.showInformationMessage(text);
-      let confluence = await getConfluenceObject(context);
-      const response = await confluence.search(
-        `cql=(text ~ "${text}" AND type="page")`
-      );
-      SearchPanel.currentPanel?._panel.webview.postMessage({ response });
-    })
+    vscode.commands.registerCommand(
+      "conflux.doSearch",
+      async ({ text, cql }) => {
+        let response: any;
+        if (cql) {
+          response = await (
+            await ConfluenceSingleton.getConfluenceObject(context)
+          ).search(`cql=(${text})`);
+        } else {
+          response = await (
+            await ConfluenceSingleton.getConfluenceObject(context)
+          ).search(`cql=(text ~ "${text}" AND type="page")`);
+        }
+        SearchPanel.currentPanel?._panel.webview.postMessage({ response });
+      }
+    )
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.document", async (id) => {
-      let confluence: Confluence = await getConfluenceObject(context);
-      const response = await confluence.getContentById(id);
-      const html = response["body"]["storage"]["value"];
+      const response = await (
+        await ConfluenceSingleton.getConfluenceObject(context)
+      ).getCustomContentById({
+        id,
+        expanders: ["body.view", "space"],
+      });
+      let html = response["body"]["view"]["value"];
+      html = escape(html);
+      const baseUrl = response["_links"]["base"];
+      const pageUrl = response["_links"]["webui"];
+      const title = response["title"];
       DocumentViewProvider.createOrShow(context.extensionUri);
-      DocumentViewProvider.currentPanel?._panel.webview.postMessage({ html });
+      DocumentViewProvider.currentPanel?._panel.webview.postMessage({
+        html,
+        baseUrl,
+        pageUrl,
+        title,
+      });
     })
   );
 
@@ -65,9 +93,18 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("conflux.initialize", () =>
-      initialize(context)
-    )
+    vscode.commands.registerCommand("conflux.initialize", async () => {
+      await initialize(context);
+      sidebarProvider.setLoggedIn(true);
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.logOut", async () => {
+      await ConfluenceSingleton.closeConfluenceObjAndLogOut(context);
+      vscode.window.showInformationMessage("Logged out successfully!");
+      sidebarProvider.setLoggedIn(false);
+    })
   );
 }
 
