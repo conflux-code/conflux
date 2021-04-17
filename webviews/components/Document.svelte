@@ -5,6 +5,15 @@
   let title: string;
   let baseUrl: string;
   let pageUrl: string;
+  let id: string;
+
+  const reloadDocument = (e: Event) => {
+    tsvscode.postMessage({
+      type: "reloadDocument",
+      value: { id, reload: true },
+    });
+  };
+
   window.addEventListener("message", (event) => {
     loaded = true;
     console.log(event);
@@ -14,18 +23,23 @@
     title = message.title;
     baseUrl = message.baseUrl;
     pageUrl = message.pageUrl;
-    console.log("Cached? ", message.cached);
+    cached = !(message.cached === undefined);
+    if (cached) {
+      id = message.cached;
+    }
   });
 </script>
 
 <div>
   {#if loaded}
-    <base href={baseUrl} />
     {#if cached}
       <div class="cache-header">
-        <button class="link-text">Showing cached results. Fetch latest?</button>
+        <button class="link-text" on:click={reloadDocument}
+          >Showing cached results. Fetch latest?</button
+        >
       </div>
     {/if}
+    <base href={baseUrl} />
     <br />
     <h1><a class="title-line" href="{baseUrl}{pageUrl}">{title}</a></h1>
     {@html body}

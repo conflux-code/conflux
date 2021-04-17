@@ -28,9 +28,17 @@
   };
 
   const renderDocument = (result: any) => {
+    const id = result.content.id;
     tsvscode.postMessage({
       type: "renderDocument",
-      value: result.content.id,
+      value: { id },
+    });
+  };
+
+  const reloadResults = (e: Event) => {
+    tsvscode.postMessage({
+      type: "doSearch",
+      value: { text, cql, reload: true },
     });
   };
 
@@ -39,7 +47,6 @@
     results = Object.values(message.response.results);
     baseUrl = message.response._links.base;
     cached = !(message.cached === undefined);
-    console.log("Cached? {}", message.cached);
   });
 </script>
 
@@ -56,7 +63,10 @@
     Search results for {text}...
     {#if cached}
       <div class="cache-header">
-        Showing cached results. <button class="link-text">Fetch latest?</button>
+        Showing cached results. <button
+          class="link-text"
+          on:click={reloadResults}>Fetch latest?</button
+        >
       </div>
     {/if}
   {/if}
@@ -78,7 +88,7 @@
           .replaceAll("@@@hl@@@", "<strong>")
           .replaceAll("@@@endhl@@@", "</strong>")}
       </div>
-      <div class="option-line">[ Cached &#x2713 ]</div>
+      <div class="option-line">[ Offline &#x2713 ]</div>
     </div>
   {/each}
 </div>

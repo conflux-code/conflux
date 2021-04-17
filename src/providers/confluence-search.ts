@@ -11,10 +11,10 @@ export class ConfluenceSearchProvider {
 
   public getCachedSearchResults = async (
     cql: string,
-    reloadCache: boolean = false
+    reload: boolean = false
   ) => {
     const cachedResponse: any = await this._cache.get(cql);
-    if (cachedResponse === undefined || reloadCache) {
+    if (cachedResponse === undefined || reload) {
       const response = await this.getSearchResults(cql);
       this._cache.set(cql, JSON.stringify(response));
       return { response };

@@ -21,17 +21,19 @@ export class ConfluenceContentProvider {
     this._imageCache = new Cache("image-cache", this._context, 100);
   }
 
-  public getCachedBodyViewById = async (id: any) => {
+  public isPageDownloaded = async (id: string) => {
+    return this._pageCache.has(id);
+  };
+
+  public getCachedBodyViewById = async (id: any, reload: boolean = false) => {
     const cachedResponse: any = await this._pageCache.get(id);
-    if (cachedResponse === undefined) {
+    if (cachedResponse === undefined || reload) {
       const response = await this.getBodyViewById(id);
       this._pageCache.set(id, JSON.stringify(response));
       return this.getCachedBodyViewWithUpdatedImageInfo(response);
     }
-    const response = JSON.parse(
-      await this.getCachedBodyViewWithUpdatedImageInfo(
-        JSON.parse(cachedResponse)
-      )
+    const response = await this.getCachedBodyViewWithUpdatedImageInfo(
+      JSON.parse(cachedResponse)
     );
     return {
       html: response["html"],
