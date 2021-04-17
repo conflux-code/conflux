@@ -106,6 +106,14 @@ export async function activate(
   );
 
   context.subscriptions.push(
+    vscode.commands.registerCommand("conflux.clearCaches", async () => {
+      await contentProvider.clearCache();
+      await searchProvider.clearCache();
+      vscode.window.showInformationMessage("Caches cleared.");
+    })
+  );
+
+  context.subscriptions.push(
     vscode.commands.registerCommand("conflux.logOut", async () => {
       await ConfluenceSingleton.closeConfluenceObjAndLogOut(context);
       vscode.window.showInformationMessage("Logged out successfully!");

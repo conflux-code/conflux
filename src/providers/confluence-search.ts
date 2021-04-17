@@ -3,7 +3,7 @@ import { ConfluenceSingleton } from "../common/confluence-singleton";
 import { Cache } from "../common/persistent-cache";
 
 export class ConfluenceSearchProvider {
-  private _cache: Cache;
+  private _cache: Cache<String>;
 
   constructor(private readonly _context: ExtensionContext, cacheSize: number) {
     this._cache = new Cache("search-cache", this._context, cacheSize);

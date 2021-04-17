@@ -14,7 +14,13 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [],
+    "commands": [
+      {
+        "category": "Conflux",
+        "title": "Clear all caches",
+        "command": "conflux.clearCaches"
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {

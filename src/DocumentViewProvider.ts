@@ -34,6 +34,7 @@ export class DocumentViewProvider {
           vscode.Uri.joinPath(extensionUri, "out/compiled"),
           vscode.Uri.joinPath(extensionUri),
         ],
+        retainContextWhenHidden: true,
       }
     );
 
