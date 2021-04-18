@@ -114,8 +114,15 @@ export async function activate(
 
   context.subscriptions.push(
     vscode.commands.registerCommand("conflux.initialize", async () => {
-      await initialize(context);
-      sidebarProvider.setLoggedIn(true);
+      try {
+        await initialize(context);
+        sidebarProvider.setLoggedIn(true);
+      } catch (error) {
+        console.log(error);
+        vscode.window.showInformationMessage(
+          "Something went wrong! Kindly rerun the command"
+        );
+      }
     })
   );
 

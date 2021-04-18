@@ -25,7 +25,11 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     webviewView.webview.options = {
       // Allow scripts in the webview
       enableScripts: true,
-      localResourceRoots: [this._extensionUri],
+      localResourceRoots: [
+        this._extensionUri,
+        vscode.Uri.joinPath(this._extensionUri, "media"),
+        vscode.Uri.joinPath(this._extensionUri, "out/compiled"),
+      ],
     };
 
     webviewView.webview.html = await this._getHtmlForWebview(
@@ -60,10 +64,6 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
           await vscode.commands.executeCommand("conflux.initialize");
           break;
         }
-        case "logIn": {
-          await vscode.commands.executeCommand("conflux.initialize");
-          break;
-        }
         case "clearCaches": {
           vscode.commands.executeCommand("conflux.clearCaches");
           break;
@@ -83,6 +83,9 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
     const styleResetUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "media", "reset.css")
     );
+    const fontUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, "media", "Comfortaa.ttf")
+    );
     const styleVSCodeUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "media", "vscode.css")
     );
@@ -101,11 +104,13 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+        <meta http-equiv="Content-Security-Policy" content="default-src https:; style-src ${webview.cspSource} https:; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="${styleVSCodeUri}" rel="stylesheet">
         <link href="${styleResetUri}" rel="stylesheet">
         <link href="${styleMainUri}" rel="stylesheet">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
         <script nonce="${nonce}">
           const tsvscode = acquireVsCodeApi();
         </script>

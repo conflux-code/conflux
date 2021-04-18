@@ -38,13 +38,17 @@
     loggedIn = Promise.resolve(message.loggedIn);
   });
 </script>
-
-{#await loggedIn then value}
-  {#if value}
-    <button on:click={openSearchPanel}>Search</button>
-    <button on:click={logOut}>Logout</button>
-  {:else}
-    <button on:click={logIn}>Login</button>
-  {/if}
-  <button on:click={clearCaches}>Clear cache</button>
-{/await}
+<div class = "wrap">
+  <h1>Conflux</h1>
+  <br>
+  <br>
+  {#await loggedIn then value}
+    {#if value}
+      <button class="search-btn" on:click={openSearchPanel}>Search</button>
+      <button class="search-btn" on:click={logOut}>Logout</button>
+    {:else}
+      <button class="search-btn" on:click={logIn}>Login</button>
+    {/if}
+    <button class="search-btn" on:click={clearCaches}>Clear cache</button>
+  {/await}
+</div>

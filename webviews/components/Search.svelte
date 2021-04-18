@@ -50,9 +50,11 @@
   });
 </script>
 
-<div class="desciptor">Enter keyword to search</div>
 <div class="search-input">
-  <input bind:value={text} on:keyup={debounce} />
+  <div class="desciptor">Enter keyword to search</div>
+  <div class="search-input-input-div">
+    <input type="text" bind:value={text} on:keyup={debounce} />
+  </div>
   <label>
     <input type="checkbox" bind:checked={cql} label="CQL" />
     CQL Enabled
@@ -116,10 +118,6 @@
     color: var(--vscode-button-secondaryBackground);
   }
 
-  .cache-header {
-    float: right;
-  }
-
   button.link-text {
     width: 90px !important;
   }
@@ -131,7 +129,9 @@
   div.subtitle {
     margin-bottom: 2px;
     padding: 4px 4px;
-    overflow-wrap: break-word;
+    word-wrap: break-word;
+    width: 90%;
+    white-space: normal;
   }
   input {
     margin-bottom: 5px;

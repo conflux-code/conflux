@@ -11,9 +11,11 @@ ul {
   margin: 5px !important;
   padding: 5px !important;
   font-weight: normal !important;
+  font-family: "Nunito", sans-serif;
 }
 
-ol,ul {
+ol,
+ul {
   margin-left: 20px !important;
 }
 

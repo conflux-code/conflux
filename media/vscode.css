@@ -1,3 +1,5 @@
+
+
 :root {
   --container-paddding: 20px;
   --input-padding-vertical: 6px;
@@ -11,7 +13,7 @@ body {
   color: var(--vscode-foreground);
   font-size: var(--vscode-font-size);
   font-weight: var(--vscode-font-weight);
-  font-family: var(--vscode-font-family);
+  font-family: 'Nunito', var(--vscode-font-family), sans-serif;
   background-color: var(--vscode-editor-background);
 }
 
@@ -41,7 +43,7 @@ a:active {
 
 code {
   font-size: var(--vscode-editor-font-size);
-  font-family: var(--vscode-editor-font-family);
+  font-family:'Nunito',  var(--vscode-editor-font-family);
 }
 
 button {
@@ -53,6 +55,7 @@ button {
   outline-offset: 2px !important;
   color: var(--vscode-button-foreground);
   background: var(--vscode-button-background);
+  font-family: 'Nunito', var(--vscode-editor-font-family), sans-serif;
 }
 
 button:hover {
@@ -73,19 +76,72 @@ button.secondary:hover {
   background: var(--vscode-button-secondaryHoverBackground);
 }
 
+.search-btn {
+  border: 10px;
+  padding: 10px;
+  margin: 10px;
+  width: 80%;
+  text-align: center;
+  letter-spacing: 2.5px;
+  outline: 1px solid transparent;
+  outline-offset: 2px !important;
+  color: var(--vscode-button-foreground);
+  background: var(--vscode-button-background);
+  border-radius: 45px;
+  text-transform: uppercase;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
+.search-btn:hover {
+  cursor: pointer;
+  background: var(--vscode-button-hoverBackground);
+  transform: translateY(-7px);
+}
+
+.search-btn:focus {
+  outline-color: var(--vscode-focusBorder);
+}
+
 input:not([type="checkbox"]),
 textarea {
   display: block;
   width: 100%;
-  border: none;
-  font-family: var(--vscode-font-family);
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  border: 2px var(--vscode-input-border) solid;
+  font-family: 'Nunito', var(--vscode-font-family);
   padding: var(--input-padding-vertical) var(--input-padding-horizontal);
   color: var(--vscode-input-foreground);
   outline-color: var(--vscode-input-border);
   background-color: var(--vscode-input-background);
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+  border-radius: 5px;
 }
 
 input::placeholder,
 textarea::placeholder {
   color: var(--vscode-input-placeholderForeground);
+}
+
+.wrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  flex-direction: column;
+}
+
+.search-input-input-div {
+  padding: 10px 0 ;
+}
+
+.search-input-input-div>input[type="text"] {
+  height: 50px !important;
+  padding: 20px !important;
 }

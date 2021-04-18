@@ -11,7 +11,7 @@ export class ConfluenceSingleton {
     if (ConfluenceSingleton.confluence !== undefined) {
       return ConfluenceSingleton.confluence;
     }
-    const username: string | undefined = await context.globalState.get(
+    const username: string | undefined = await context.secrets.get(
       Constants.userNameKey
     );
     if (username === undefined) {
