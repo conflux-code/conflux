@@ -12,6 +12,11 @@ ul {
   padding: 5px !important;
   font-weight: normal !important;
 }
+
+ol,ul {
+  margin-left: 20px !important;
+}
+
 .relative {
   position: relative;
 }
