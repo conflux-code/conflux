@@ -5,6 +5,7 @@
   let baseUrl = "";
   let cql: boolean = false;
   let cached: boolean = false;
+  let loading: boolean = false;
 
   const openSearchPanel = () => {
     if (text.length <= 2) {
@@ -12,6 +13,7 @@
         type: "onInfo",
         value: "More than 2 chars needed!",
       });
+      loading = false;
       return;
     }
     tsvscode.postMessage({
@@ -23,6 +25,8 @@
   const debounce = (e: Event) => {
     clearTimeout(timer);
     timer = setTimeout(() => {
+      results = [];
+      loading = true;
       openSearchPanel();
     }, 1000);
   };
@@ -36,6 +40,8 @@
   };
 
   const reloadResults = (e: Event) => {
+    results = [];
+    loading = true;
     tsvscode.postMessage({
       type: "doSearch",
       value: { text, cql, reload: true },
@@ -47,6 +53,7 @@
     results = Object.values(message.response.results);
     baseUrl = message.response._links.base;
     cached = !(message.cached === undefined);
+    loading = false;
   });
 </script>
 
@@ -61,16 +68,22 @@
   </label>
   <br />
   <br />
-  {#if text !== undefined}
-    Search results for {text}...
-    {#if cached}
-      <div class="cache-header">
-        Showing cached results. <button
-          class="link-text"
-          on:click={reloadResults}>Fetch latest?</button
-        >
-      </div>
+  {#if !loading}
+    {#if text !== undefined}
+      {#if cached}
+        <div class="cache-header">
+          Showing cached results.
+          <button class="link-text" on:click={reloadResults}
+            >Fetch latest?</button
+          >
+        </div>
+      {/if}
     {/if}
+  {:else}
+    <div class="loader-ring">
+      <div class="loader-ring-light" />
+      <div class="loader-ring-track" />
+    </div>
   {/if}
 </div>
 <br />
@@ -119,7 +132,8 @@
   }
 
   button.link-text {
-    width: 90px !important;
+    width: 30% !important;
+    margin-left: 5%;
   }
 
   button.title {
