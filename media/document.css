@@ -1,5 +1,14 @@
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+ol,
 ul {
-  margin: 5 !important;
-  padding: 5 !important;
+  margin: 5px !important;
+  padding: 5px !important;
   font-weight: normal !important;
 }
