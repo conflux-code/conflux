@@ -130,7 +130,8 @@ export class DocumentViewProvider {
         <link href="${stylesResetUri}" rel="stylesheet">
         <link href="${stylesMainUri}" rel="stylesheet">
         <link href="${stylesDocumentUri}" rel="stylesheet">
-        <script>
+        <script nonce="${nonce}">
+          const tsvscode = acquireVsCodeApi();
         </script>
       </head>
       <body>

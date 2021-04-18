@@ -27,20 +27,19 @@ export class ConfluenceContentProvider {
 
   public getCachedBodyViewById = async (id: any, reload: boolean = false) => {
     const cachedResponse: any = await this._pageCache.get(id);
+    let response: any;
     if (cachedResponse === undefined || reload) {
-      const response = await this.getBodyViewById(id);
+      response = await this.getBodyViewById(id);
       this._pageCache.set(id, JSON.stringify(response));
-      return this.getCachedBodyViewWithUpdatedImageInfo(response);
+      response = await this.getCachedBodyViewWithUpdatedImageInfo(response);
+    } else {
+      response = await this.getCachedBodyViewWithUpdatedImageInfo(
+        JSON.parse(cachedResponse)
+      );
     }
-    const response = await this.getCachedBodyViewWithUpdatedImageInfo(
-      JSON.parse(cachedResponse)
-    );
     return {
-      html: response["html"],
-      baseUrl: response["baseUrl"],
-      pageUrl: response["pageUrl"],
-      title: response["title"],
       cached: id,
+      ...response,
     };
   };
 

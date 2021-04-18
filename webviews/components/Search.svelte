@@ -88,7 +88,11 @@
           .replaceAll("@@@hl@@@", "<strong>")
           .replaceAll("@@@endhl@@@", "</strong>")}
       </div>
-      <div class="option-line">[ Offline &#x2713 ]</div>
+      {#if result.isOffline}
+        <div class="option-line">[ Offline &#x2714 ]</div>
+      {:else}
+        <div class="option-line">[ Offline &#x2718 ]</div>
+      {/if}
     </div>
   {/each}
 </div>

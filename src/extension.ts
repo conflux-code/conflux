@@ -60,6 +60,15 @@ export async function activate(
             reload
           );
         }
+        await Promise.all(
+          response.response.results.map(async (item: any) => {
+            const isOffline = await contentProvider.isPageDownloaded(
+              item.content.id
+            );
+            item.isOffline = isOffline;
+            return item;
+          })
+        );
         SearchPanel.currentPanel?._panel.webview.postMessage(response);
       }
     )
