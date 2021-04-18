@@ -32,6 +32,7 @@ export class ConfluenceContentProvider {
       response = await this.getBodyViewById(id);
       this._pageCache.set(id, JSON.stringify(response));
       response = await this.getCachedBodyViewWithUpdatedImageInfo(response);
+      return response;
     } else {
       response = await this.getCachedBodyViewWithUpdatedImageInfo(
         JSON.parse(cachedResponse)

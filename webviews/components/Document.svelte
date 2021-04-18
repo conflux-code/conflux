@@ -44,6 +44,9 @@
     <h1><a class="title-line" href="{baseUrl}{pageUrl}">{title}</a></h1>
     {@html body}
   {:else}
-    <h1>Loading...</h1>
+    <div class="loader-ring">
+      <div class="loader-ring-light" />
+      <div class="loader-ring-track" />
+    </div>
   {/if}
 </div>

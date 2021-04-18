@@ -91,7 +91,7 @@
       {#if result.isOffline}
         <div class="option-line">[ Offline &#x2714 ]</div>
       {:else}
-        <div class="option-line">[ Offline &#x2718 ]</div>
+        <div class="option-line option-line-offline">[ Offline &#x2718 ]</div>
       {/if}
     </div>
   {/each}
@@ -110,6 +110,10 @@
     margin-bottom: 20px;
     float: right;
     color: var(--vscode-button-background);
+  }
+
+  .option-line-offline {
+    color: var(--vscode-button-secondaryBackground);
   }
 
   .cache-header {
