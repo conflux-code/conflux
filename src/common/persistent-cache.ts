@@ -1,20 +1,20 @@
 import * as vscode from "vscode";
-import * as LRU from "lru-cache";
 import { TextDecoder, TextEncoder } from "util";
 import LRUCache = require("lru-cache");
 import { UserMessages } from "./user-messages";
 
 export class Cache<T> {
-  private _lru: LRU<string, T>;
+  private _lru: LRUCache<string, T>;
 
   constructor(
     public id: string,
     private readonly _context: vscode.ExtensionContext,
-    n: number
+    n: number,
+    public dispose?: (key:string, value:T) => void
   ) {
     this.id = id;
     this._createCacheDirectory();
-    this._lru = new LRUCache({ max: n });
+    this._lru = new LRUCache({ max: n, dispose: dispose || ((_k, _v) => {}) });
     this._loadCache();
   }
 

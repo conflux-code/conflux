@@ -5,7 +5,6 @@ import { ConfluenceSingleton } from "../common/confluence-singleton";
 import { Constants } from "../common/constants";
 import { Cache } from "../common/persistent-cache";
 import { DocumentViewProvider } from "../DocumentViewProvider";
-
 export class ConfluenceContentProvider {
   private _pageCache: Cache<String>;
   private _imageCache: Cache<Buffer>;
@@ -18,7 +17,7 @@ export class ConfluenceContentProvider {
   ) {
     this._pageCache = new Cache("page-cache", this._context, cacheSize);
     this._imageStorageDirectory = storageDirectory;
-    this._imageCache = new Cache("image-cache", this._context, 100);
+    this._imageCache = new Cache("image-cache", this._context, 100, onDispose);
   }
 
   public isPageDownloaded = async (id: string) => {
@@ -68,7 +67,7 @@ export class ConfluenceContentProvider {
   };
 
   private _storeImagesAndGetUpdatedHtml = async (
-    html: any
+    html: string
   ): Promise<string> => {
     let htmlParsed: HTMLElement = parse(unescape(html));
     await Promise.all(
@@ -80,8 +79,13 @@ export class ConfluenceContentProvider {
         const confluence = await ConfluenceSingleton.getConfluenceObject(
           this._context
         );
+
+        const imgPath = vscode.Uri.joinPath(
+          this._imageStorageDirectory,
+          image.getAttribute("data-linked-resource-default-alias") || "sample"
+        );
         let imageBuffer: Buffer | undefined = await this._imageCache.get(
-          imgUrl
+          imgPath.toString()
         );
         if (imageBuffer === undefined) {
           imageBuffer = await confluence.fetch(
@@ -92,20 +96,17 @@ export class ConfluenceContentProvider {
           if (imageBuffer === undefined) {
             return null;
           }
-          this._imageCache.set(imgUrl, imageBuffer);
         }
-        const imgPath = vscode.Uri.joinPath(
-          this._imageStorageDirectory,
-          image.getAttribute("data-linked-resource-default-alias") || "sample"
-        );
+        this._imageCache.set(imgPath.toString(), imageBuffer);
         try {
           await vscode.workspace.fs.stat(imgPath);
         } catch (error) {
           await vscode.workspace.fs.writeFile(imgPath, imageBuffer);
         }
-        const webviewUri = DocumentViewProvider.currentPanel?._panel.webview.asWebviewUri(
-          imgPath
-        );
+        const webviewUri =
+          DocumentViewProvider.currentPanel?._panel.webview.asWebviewUri(
+            imgPath
+          );
         if (webviewUri === undefined) {
           return null;
         }
@@ -127,3 +128,14 @@ export class ConfluenceContentProvider {
     };
   };
 }
+
+const onDispose = async (imgPath: string, _imgBuffer: any): Promise<void> => {
+  try {
+    const imgUri = vscode.Uri.parse(imgPath);
+    console.log(`deleting ${imgPath}`);
+    await vscode.workspace.fs.delete(imgUri);
+    console.log("successfully deleted");
+  } catch (error) {
+    console.log(`Error:${error}`);
+  }
+};
