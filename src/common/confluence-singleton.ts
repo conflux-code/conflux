@@ -23,14 +23,19 @@ export class ConfluenceSingleton {
       throw new Error("Password not found");
     }
 
-    return ConfluenceSingleton.createConfluenceObj(username, password);
+    const baseUrl: string | undefined = await context.secrets.get(Constants.baseUriKey);
+    if (baseUrl === undefined) {
+      throw new Error("BaseURL not found");
+    }
+
+    return ConfluenceSingleton.createConfluenceObj(baseUrl, username, password);
   };
 
-  public static createConfluenceObj(username: string, password: string) {
+  public static createConfluenceObj(baseUrl: string, username: string, password: string) {
     let config = {
       username,
       password,
-      baseUrl: Constants.baseUri,
+      baseUrl,
     };
     ConfluenceSingleton.confluence = new Confluence(config);
     return ConfluenceSingleton.confluence;

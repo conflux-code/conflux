@@ -6,27 +6,33 @@ import { Constants } from "./constants";
 export async function initialize(
   context: vscode.ExtensionContext
 ): Promise<void> {
-  const { username, password } = await getInputs();
+  const { baseUrl, username, password } = await getInputs();
   const confluence = ConfluenceSingleton.createConfluenceObj(
+    baseUrl,
     username,
     password
   );
-  await verifyAndStoreCredentials(context, confluence, username, password);
+  await verifyAndStoreCredentials(context, confluence, baseUrl, username, password);
 }
 
 const verifyAndStoreCredentials = async (
   context: vscode.ExtensionContext,
   confluence: Confluence,
+  baseUrl: string,
   username: string,
   password: string
 ): Promise<void> => {
   await confluence.fetch(Constants.baseUri + Constants.currentUserPath);
   await context.secrets.store(username, password);
   await context.secrets.store(Constants.userNameKey, username);
+  await context.secrets.store(Constants.baseUriKey, baseUrl);
   vscode.window.showInformationMessage("Credentials Verified!");
 };
 
-const getInputs = async (): Promise<{ username: string; password: string }> => {
+const getInputs = async (): Promise<{ baseUrl: string, username: string; password: string }> => {
+  const baseUrl = await vscode.window.showInputBox({
+    prompt: "Confluence Base URL",
+  });
   const username = await vscode.window.showInputBox({
     prompt: "Confluence Username",
   });
@@ -34,8 +40,8 @@ const getInputs = async (): Promise<{ username: string; password: string }> => {
     prompt: "Confluence Passsword",
     password: true,
   });
-  if (username === undefined || password === undefined) {
+  if (username === undefined || password === undefined || baseUrl === undefined) {
     throw new Error("Invalid Input");
   }
-  return { username, password };
+  return { baseUrl, username, password };
 };

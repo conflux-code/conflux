@@ -47,7 +47,7 @@
       <button class="search-btn" on:click={openSearchPanel}>Search</button>
       <button class="search-btn" on:click={logOut}>Logout</button>
     {:else}
-      <button class="search-btn" on:click={logIn}>Login</button>
+      <button class="search-btn" on:click={logIn}>Initialize</button>
     {/if}
     <button class="search-btn" on:click={clearCaches}>Clear cache</button>
   {/await}
