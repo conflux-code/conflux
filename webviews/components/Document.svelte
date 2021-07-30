@@ -16,9 +16,18 @@
 
   window.addEventListener("message", (event) => {
     loaded = true;
-    console.log(event);
     const message = event.data; // The JSON data our extension sent
-    console.log(message);
+    if (message.image && message.imgId) {
+      let divElement: HTMLElement | null = document.querySelector(
+        `div[data-confluxId="${message.imgId}"]`
+      );
+      console.log(divElement);
+      console.log(message.image);
+      if(divElement !== null) {
+        divElement.innerHTML = message.image;
+      }
+      return;
+    }
     body = unescape(message.html);
     title = message.title;
     baseUrl = message.baseUrl;

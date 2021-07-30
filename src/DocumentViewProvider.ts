@@ -1,5 +1,5 @@
+import { HTMLElement } from "node-html-parser";
 import * as vscode from "vscode";
-import { Constants } from "./common/constants";
 import { getNonce } from "./getNonce";
 
 export class DocumentViewProvider {
@@ -72,6 +72,11 @@ export class DocumentViewProvider {
         x.dispose();
       }
     }
+  }
+
+  public updateImage(info: {image: HTMLElement, imgId:string}): void {
+    const webView = this._panel.webview;
+    webView.postMessage({image: info.image.toString(), imgId: info.imgId});
   }
 
   private async _update() {
