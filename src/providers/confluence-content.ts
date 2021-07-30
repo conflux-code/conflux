@@ -4,20 +4,11 @@ import { ExtensionContext } from "vscode";
 import { ConfluenceSingleton } from "../common/confluence-singleton";
 import { Constants } from "../common/constants";
 import { Cache } from "../common/persistent-cache";
-import { DocumentViewProvider } from "../DocumentViewProvider";
 export class ConfluenceContentProvider {
   private _pageCache: Cache<String>;
-  private _imageCache: Cache<Buffer>;
-  private _imageStorageDirectory: vscode.Uri;
 
-  constructor(
-    private readonly _context: ExtensionContext,
-    cacheSize: number,
-    storageDirectory: vscode.Uri
-  ) {
+  constructor(private readonly _context: ExtensionContext, cacheSize: number) {
     this._pageCache = new Cache("page-cache", this._context, cacheSize);
-    this._imageStorageDirectory = storageDirectory;
-    this._imageCache = new Cache("image-cache", this._context, 100, onDispose);
   }
 
   public isPageDownloaded = async (id: string) => {
@@ -25,22 +16,22 @@ export class ConfluenceContentProvider {
   };
 
   public getCachedBodyViewById = async (id: any, reload: boolean = false) => {
-    const cachedResponse: any = await this._pageCache.get(id);
-    let response: any;
-    if (cachedResponse === undefined || reload) {
-      response = await this.getBodyViewById(id);
-      this._pageCache.set(id, JSON.stringify(response));
-      response = await this.getCachedBodyViewWithUpdatedImageInfo(response);
-      return response;
-    } else {
-      response = await this.getCachedBodyViewWithUpdatedImageInfo(
-        JSON.parse(cachedResponse)
-      );
+    try {
+      const cachedResponse: any = await this._pageCache.get(id);
+      let response: any;
+      if (cachedResponse === undefined || reload) {
+        response = await this.getBodyViewById(id);
+        response = await this.getCachedBodyViewWithUpdatedImageInfo(response);
+        this._pageCache.set(id, JSON.stringify(response));
+        return response;
+      }
+      return {
+        cached: id,
+        ...JSON.parse(cachedResponse),
+      };
+    } catch (error) {
+      console.log(`error: ${error}`);
     }
-    return {
-      cached: id,
-      ...response,
-    };
   };
 
   public getBodyViewById = async (id: any) => {
@@ -48,18 +39,17 @@ export class ConfluenceContentProvider {
       await ConfluenceSingleton.getConfluenceObject(this._context)
     ).getCustomContentById({
       id,
-      expanders: ["body.view"],
+      expanders: ["body.styled_view"],
     });
     return this._getDetailsFromResponse(response);
   };
 
   public clearCache = async () => {
     this._pageCache.clearCache();
-    this._imageCache.clearCache();
   };
 
   private _getDetailsFromResponse = async (response: any) => {
-    const html = escape(response["body"]["view"]["value"]);
+    const html = escape(response["body"]["styled_view"]["value"]);
     const baseUrl = response["_links"]["base"];
     const pageUrl = response["_links"]["webui"];
     const title = response["title"];
@@ -80,39 +70,20 @@ export class ConfluenceContentProvider {
           this._context
         );
 
-        const imgPath = vscode.Uri.joinPath(
-          this._imageStorageDirectory,
-          image.getAttribute("data-linked-resource-default-alias") || "sample"
-        );
-        let imageBuffer: Buffer | undefined = await this._imageCache.get(
-          imgPath.toString()
+        let imageBuffer = await confluence.fetch(
+          imgUrl.indexOf(Constants.baseUri) === 0 ? imgUrl : Constants.baseUri + imgUrl,
+          "GET",
+          false
         );
         if (imageBuffer === undefined) {
-          imageBuffer = await confluence.fetch(
-            Constants.baseUri + imgUrl,
-            "GET",
-            false
-          );
-          if (imageBuffer === undefined) {
-            return null;
-          }
-        }
-        this._imageCache.set(imgPath.toString(), imageBuffer);
-        try {
-          await vscode.workspace.fs.stat(imgPath);
-        } catch (error) {
-          await vscode.workspace.fs.writeFile(imgPath, imageBuffer);
-        }
-        const webviewUri =
-          DocumentViewProvider.currentPanel?._panel.webview.asWebviewUri(
-            imgPath
-          );
-        if (webviewUri === undefined) {
           return null;
         }
-        image.setAttribute("src", webviewUri.toString());
-        image.setAttribute("data-image-src", webviewUri.toString());
-        image.removeAttribute("data-base-url");
+        let base64Image = imageBuffer.toString("base64");
+        let contentType = image.getAttribute(
+          "data-linked-resource-content-type"
+        );
+        const dataUrl = "data:" + contentType + ";base64," + base64Image;
+        image.setAttribute("src", dataUrl);
         return image;
       })
     );

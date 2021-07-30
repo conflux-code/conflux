@@ -15,11 +15,7 @@ export async function activate(
     "images"
   );
   const sidebarProvider = new SidebarProvider(context.extensionUri);
-  const contentProvider = new ConfluenceContentProvider(
-    context,
-    20,
-    imagesDirectoryUri
-  );
+  const contentProvider = new ConfluenceContentProvider(context, 20);
   const searchProvider = new ConfluenceSearchProvider(context, 20);
 
   let isLoggedIn: boolean = true;

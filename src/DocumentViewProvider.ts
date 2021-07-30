@@ -124,7 +124,7 @@ export class DocumentViewProvider {
       <html lang="en">
       <head>
         <meta charset="UTF-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src https:; style-src ${webview.cspSource} https:; img-src ${webview.cspSource} https:; script-src 'nonce-${nonce}';">
+        <meta http-equiv="Content-Security-Policy" content="default-src https:; style-src 'unsafe-inline' ${webview.cspSource} https:; img-src ${webview.cspSource} https: data:; script-src 'nonce-${nonce}';">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="${stylesResetUri}" rel="stylesheet">
         <link href="${stylesDocumentUri}" rel="stylesheet">
