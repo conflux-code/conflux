@@ -42,7 +42,9 @@
     <base href={baseUrl} />
     <br />
     <h1><a class="title-line" href="{baseUrl}{pageUrl}">{title}</a></h1>
-    {@html body}
+    <div class="renderedDocument">
+      {@html body}
+    </div>
   {:else}
     <div class="loader-ring">
       <div class="loader-ring-light" />

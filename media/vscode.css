@@ -8,12 +8,18 @@
   --input-margin-horizontal: 0;
 }
 
+div.renderedDocument * :not(a){
+  color: var(--vscode-foreground) !important;
+  background-color: var(--vscode-editor) !important;
+  border-color: var(--vscode-foreground) !important;
+}
+
 body {
   padding: 0 var(--container-paddding);
-  color: var(--vscode-foreground);
   font-size: var(--vscode-font-size);
   font-weight: var(--vscode-font-weight);
   font-family: 'Nunito', var(--vscode-font-family), sans-serif;
+  color: var(--vscode-foreground);
   background-color: var(--vscode-editor-background);
 }
 
@@ -33,12 +39,12 @@ form > * {
 }
 
 a {
-  color: var(--vscode-textLink-foreground);
+  color: var(--vscode-textLink-foreground) !important;
 }
 
 a:hover,
 a:active {
-  color: var(--vscode-textLink-activeForeground);
+  color: var(--vscode-textLink-activeForeground) !important;
 }
 
 code {
