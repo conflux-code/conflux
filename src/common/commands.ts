@@ -22,7 +22,7 @@ const verifyAndStoreCredentials = async (
   username: string,
   password: string
 ): Promise<void> => {
-  await confluence.fetch(Constants.baseUri + Constants.currentUserPath);
+  await confluence.fetch(baseUrl + Constants.currentUserPath);
   await context.secrets.store(username, password);
   await context.secrets.store(Constants.userNameKey, username);
   await context.secrets.store(Constants.baseUriKey, baseUrl);

@@ -117,9 +117,9 @@ export class ConfluenceContentProvider {
     );
 
     let imageBuffer = await confluence.fetch(
-      imgUrl.indexOf(Constants.baseUri) === 0
+      imgUrl.indexOf(ConfluenceSingleton.getBaseUrl()) === 0
         ? imgUrl
-        : Constants.baseUri + imgUrl,
+        : ConfluenceSingleton.getBaseUrl() + imgUrl,
       "GET",
       false
     );

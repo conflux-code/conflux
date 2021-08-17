@@ -4,6 +4,7 @@ import { Constants } from "./constants";
 
 export class ConfluenceSingleton {
   private static confluence: Confluence | undefined;
+  private static baseUri: string;
 
   public static getConfluenceObject = async (
     context: vscode.ExtensionContext
@@ -27,6 +28,7 @@ export class ConfluenceSingleton {
     if (baseUrl === undefined) {
       throw new Error("BaseURL not found");
     }
+    ConfluenceSingleton.baseUri = baseUrl;
 
     return ConfluenceSingleton.createConfluenceObj(baseUrl, username, password);
   };
@@ -53,5 +55,9 @@ export class ConfluenceSingleton {
     }
     await context.secrets.delete(username);
     await context.secrets.delete(Constants.userNameKey);
+  }
+
+  public static getBaseUrl() {
+    return ConfluenceSingleton.baseUri;
   }
 }
