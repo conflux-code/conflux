@@ -27,7 +27,10 @@ export class ConfluenceContentProvider {
       let response: any;
       if (cachedResponse === undefined || reload) {
         response = await this.getBodyViewById(id);
-        response = await this.getCachedBodyViewWithUpdatedImageInfo(response, id);
+        response = await this.getCachedBodyViewWithUpdatedImageInfo(
+          response,
+          id
+        );
         this._pageCache.set(id, JSON.stringify(response));
         return response;
       }
@@ -53,14 +56,19 @@ export class ConfluenceContentProvider {
   };
 
   private _getDetailsFromResponse = async (response: any) => {
-    const html = escape(response["body"][`${Constants.confluenceContentViewType}`]["value"]);
+    const html = escape(
+      response["body"][`${Constants.confluenceContentViewType}`]["value"]
+    );
     const baseUrl = response["_links"]["base"];
     const pageUrl = response["_links"]["webui"];
     const title = response["title"];
     return { html, baseUrl, pageUrl, title };
   };
 
-  private getCachedBodyViewWithUpdatedImageInfo = async (response: any, pageId: string) => {
+  private getCachedBodyViewWithUpdatedImageInfo = async (
+    response: any,
+    pageId: string
+  ) => {
     let { html, ...others } = response;
     html = await this._storeImagesAndGetUpdatedHtml(html, pageId);
     return {
@@ -119,7 +127,10 @@ export class ConfluenceContentProvider {
     let imageBuffer = await confluence.fetch(
       imgUrl.indexOf(ConfluenceSingleton.getBaseUrl()) === 0
         ? imgUrl
-        : ConfluenceSingleton.getBaseUrl() + imgUrl,
+        : ConfluenceSingleton.getBaseUrl() +
+            (imgUrl.startsWith("/confluence")
+              ? imgUrl.slice("/confluence".length, imgUrl.length)
+              : imgUrl),
       "GET",
       false
     );
